@@ -7,9 +7,11 @@ var schema = buildSchema(`
     type Query {
         course(id: Int!): Course
         courses(topic: String): [Course]
+        coursesTitle(title : String): [Course]
     },
-       type Mutation {
-        updateCourseTopic(id: Int!, topic: String!): Course
+    type Mutation {
+        updateCourseTopic(id: Int!, topic: String!): Course,
+        addCourse(data:dataInput!): [Course]
     }
     type Course {
         id: Int
@@ -19,6 +21,17 @@ var schema = buildSchema(`
         topic: String
         url: String
     }
+
+    input dataInput {
+        id: Int
+        title: String
+        author: String
+        description: String
+        topic: String
+        url: String
+    }
+    
+
 `)
 
 var coursesData = [
@@ -48,7 +61,17 @@ var coursesData = [
   },
 ]
 
+var getCourseTitle = function (args) {
+  console.log("test", args)
+  const title = args.title
+  return coursesData.filter(course => {
+    if (course.title.includes(title)) return coursesData
+  })
+}
+
 var getCourse = function (args) {
+  console.log("test", getCourse)
+
   var id = args.id
   return coursesData.filter(course => {
     return course.id == id
@@ -62,6 +85,11 @@ var getCourses = function (args) {
   } else {
     return coursesData
   }
+}
+
+var getAddCourse = function (args) {
+  coursesData.push(args.data)
+  return coursesData
 }
 
 var updateCourseTopic = function ({ id, topic }) {
@@ -78,6 +106,8 @@ var root = {
   course: getCourse,
   courses: getCourses,
   updateCourseTopic: updateCourseTopic,
+  coursesTitle: getCourseTitle,
+  addCourse: getAddCourse,
 }
 
 // Create an express server and a GraphQL endpoint
